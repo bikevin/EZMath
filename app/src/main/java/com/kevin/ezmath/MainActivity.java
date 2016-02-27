@@ -1,6 +1,7 @@
 package com.kevin.ezmath;
 
 import android.app.DownloadManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity
         MathWidgetApi.OnSolvingListener,
         MathWidgetApi.OnUndoRedoListener{
 
+    String currentUrl = "";
     private static final String key = "79XT2W-3WXQVGTJ48";
     private static final boolean DBG = BuildConfig.DEBUG;
     private static final String TAG = "EZMath";
@@ -108,6 +110,8 @@ public class MainActivity extends AppCompatActivity
         // Configure math widget
         mWidget.setResourcesPath(resourcePath);
         mWidget.configure(this, resources, MyCertificate.getBytes(), MathWidgetApi.AdditionalGestures.DefaultGestures);
+        new APIRequest().execute("\\int_{x}^{2}");
+        Log.e("stuff", currentUrl);
     }
 
     @Override
@@ -205,63 +209,6 @@ public class MainActivity extends AppCompatActivity
     // Math Widget styleable library - equation recognition process
 
     //sends the math request to Wolfram
-    public String sendRequest(String info)
-    {
-        String url = "http://api.wolframalpha.com/v2/query?appid=" + key + "&input=";
-        for(int i = 0; i < info.length(); i++)
-        {
-            if(!(info.charAt(i)>=97 && info.charAt(i)<=122))
-            {
-                url += '%'+ Integer.toHexString(info.charAt(i) | 0x10000).substring(3).toUpperCase();
-            }
-            else
-            {
-                url += info.charAt(i);
-            }
-        }
-        url += "&format=image,plaintext";
-
-        HttpURLConnection c = null;
-        try {
-            URL u = new URL(url);
-            c = (HttpURLConnection) u.openConnection();
-            c.setRequestMethod("GET");
-            c.setRequestProperty("Content-length", "0");
-            c.setUseCaches(false);
-            c.setAllowUserInteraction(false);
-            c.setConnectTimeout(5000);
-            c.setReadTimeout(5000);
-            c.connect();
-            int status = c.getResponseCode();
-
-            switch (status) {
-                case 200:
-                case 201:
-                    BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line+"\n");
-                    }
-                    br.close();
-                    return sb.toString();
-            }
-
-        } catch (MalformedURLException ex) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (c != null) {
-                try {
-                    c.disconnect();
-                } catch (Exception ex) {
-                    Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-        return null;
-    }
 
     @Override
     public void onRecognitionBegin()
@@ -342,4 +289,69 @@ public class MainActivity extends AppCompatActivity
             showDialog(id);
         }
     }
+
+    private class APIRequest extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            String info = params[0];
+            String url = "http://api.wolframalpha.com/v2/query?appid=" + key + "&input=";
+            for (int i = 0; i < info.length(); i++) {
+                if (!(info.charAt(i) >= 97 && info.charAt(i) <= 122)) {
+                    url += '%' + Integer.toHexString(info.charAt(i) | 0x10000).substring(3).toUpperCase();
+                } else {
+                    url += info.charAt(i);
+                }
+            }
+            url += "&format=image,plaintext";
+
+            HttpURLConnection c = null;
+            try {
+                URL u = new URL(url);
+                c = (HttpURLConnection) u.openConnection();
+                c.setRequestMethod("GET");
+                c.setRequestProperty("Content-length", "0");
+                c.setUseCaches(false);
+                c.setAllowUserInteraction(false);
+                c.setConnectTimeout(5000);
+                c.setReadTimeout(5000);
+                c.connect();
+                int status = c.getResponseCode();
+
+                switch (status) {
+                    case 200:
+                    case 201:
+                        BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            sb.append(line + "\n");
+                        }
+                        br.close();
+                        currentUrl = sb.toString();
+                }
+
+            } catch (MalformedURLException ex) {
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                if (c != null) {
+                    try {
+                        c.disconnect();
+                    } catch (Exception ex) {
+                        Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+
+        }
+    }
 }
+

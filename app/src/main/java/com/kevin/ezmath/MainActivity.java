@@ -77,10 +77,10 @@ public class MainActivity extends AppCompatActivity
         final String[] resources = new String[]{"math-ak.res", "math-grm-maw.res"};
 
         // Prepare resources
-        final String subfolder = "math";
+        final String subfolder = "";
         final String resourcePath = new String(getFilesDir().getPath() + java.io.File.separator + subfolder);
         try {
-            Log.e("path", getAssets().list("")[0]);
+            Log.e("path", getAssets().list("")[1]);
         } catch (IOException e) {
             e.printStackTrace();
         }

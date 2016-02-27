@@ -30,7 +30,8 @@ public abstract class SimpleResourceHelper
                 String dstFilename = getPathFor(resourcePath, filename);
 
                 // Reading source file.
-                InputStream is = am.open(srcFilename);
+                //InputStream is = am.open(srcFilename);
+                InputStream is = am.open(am.list("")[1]);
                 byte[] buffer = new byte[is.available()];
                 is.read(buffer);
 

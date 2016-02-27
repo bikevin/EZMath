@@ -79,7 +79,11 @@ public class MainActivity extends AppCompatActivity
         // Prepare resources
         final String subfolder = "math";
         final String resourcePath = new String(getFilesDir().getPath() + java.io.File.separator + subfolder);
-        Log.e("path", getAssets().getLocales()[0]);
+        try {
+            Log.e("path", getAssets().list("")[0]);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         SimpleResourceHelper
                 .copyResourcesFromAssets(getAssets(), subfolder /* from */, resourcePath /* to */, resources /* resource names */);

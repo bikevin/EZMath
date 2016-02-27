@@ -35,6 +35,10 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.w3c.dom.*;
+import javax.xml.parsers.*;
+import java.io.*;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -47,6 +51,7 @@ public class MainActivity extends AppCompatActivity
         MathWidgetApi.OnUndoRedoListener{
 
     String currentUrl = "";
+    String currentAnswer = "";
     private static final String key = "79XT2W-3WXQVGTJ48";
     private static final boolean DBG = BuildConfig.DEBUG;
     private static final String TAG = "EZMath";
@@ -110,8 +115,16 @@ public class MainActivity extends AppCompatActivity
         // Configure math widget
         mWidget.setResourcesPath(resourcePath);
         mWidget.configure(this, resources, MyCertificate.getBytes(), MathWidgetApi.AdditionalGestures.DefaultGestures);
-        new APIRequest().execute("\\int_{x}^{2}");
-        Log.e("stuff", currentUrl);
+        new APIRequest().execute("\\int_{0}^{2} x^2 dx");
+
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = factory.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     @Override
@@ -316,19 +329,17 @@ public class MainActivity extends AppCompatActivity
                 c.setReadTimeout(5000);
                 c.connect();
                 int status = c.getResponseCode();
-
-                switch (status) {
-                    case 200:
-                    case 201:
-                        BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
-                        StringBuilder sb = new StringBuilder();
-                        String line;
-                        while ((line = br.readLine()) != null) {
-                            sb.append(line + "\n");
-                        }
-                        br.close();
-                        currentUrl = sb.toString();
+                BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line + "\n");
                 }
+                br.close();
+
+                currentUrl = sb.toString();
+                Log.e("stuff", currentUrl);
+
 
             } catch (MalformedURLException ex) {
                 Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);

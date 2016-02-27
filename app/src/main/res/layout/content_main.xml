@@ -12,8 +12,9 @@
     tools:context="com.kevin.ezmath.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
+    <com.myscript.atk.maw.MathWidget
+        android:id="@+id/myscript_maw"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
 </RelativeLayout>

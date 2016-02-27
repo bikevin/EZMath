@@ -28,4 +28,5 @@ dependencies {
     compile files('libs/AtkMawStyleable.jar')
     compile files('libs/com.myscript.atk.styluscore.jar')
     compile fileTree(dir:'libs', include: '*.jar')
+    compile 'com.mcxiaoke.volley:library:1.0.19'
 }
